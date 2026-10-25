@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arma tu estructura territorial | Semana 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ind:#4100BE; --ind2:#2B0085; --blue:#1F5BFF; --sky:#3FA9FF; --gold:#FFC83D;
+  --ink:#1B1640; --mut:#6B6890; --bg:#F3F1FF; --card:#fff; --ok:#1E6FE8; --err:#D62D4B; --line:#DCD6F6;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:Poppins,system-ui,sans-serif;background:var(--bg);color:var(--ink);display:flex;flex-direction:column}
+
+/* HEADER */
+header{background:linear-gradient(100deg,var(--ind2),var(--ind) 55%,var(--blue));color:#fff;padding:8px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px}
+.logo .u{font-size:27px;font-weight:800;letter-spacing:-1px;line-height:1}
+.logo .sep{width:1px;height:28px;background:rgba(255,255,255,.6)}
+.logo .ec{font-size:11px;line-height:1.05;font-weight:500}
+.logo .ec b{display:block;font-size:15px;font-weight:800}
+.htitle{flex:1;min-width:210px}
+.htitle h1{font-size:18px;font-weight:700;line-height:1.2}
+.htitle p{font-size:11.5px;opacity:.85}
+.badges{display:flex;gap:6px;flex-wrap:wrap}
+.badge{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.4);padding:3px 11px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+.hright{display:flex;align-items:center;gap:8px}
+.timer{background:#fff;color:var(--ind);font-weight:700;padding:4px 12px;border-radius:20px;font-size:14px;min-width:84px;text-align:center}
+.icon-btn{background:rgba(255,255,255,.2);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:15px}
+
+/* PROGRESS */
+.progress-wrap{background:#fff;padding:7px 18px 8px;border-bottom:1px solid var(--line)}
+.stages{display:flex;gap:8px;margin-bottom:6px}
+.stage{flex:1;font-size:11.5px;font-weight:600;color:var(--mut);display:flex;align-items:center;gap:6px;min-width:0}
+.stage span.t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stage .n{width:21px;height:21px;border-radius:50%;background:var(--line);color:var(--ind2);display:grid;place-items:center;font-size:11px;flex:none;transition:.3s}
+.stage.on{color:var(--ind)} .stage.on .n{background:var(--ind);color:#fff;box-shadow:0 0 0 4px rgba(65,0,190,.15)}
+.stage.done .n{background:var(--blue);color:#fff}
+.bar{height:8px;background:#E8E4FA;border-radius:6px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ind),var(--sky));transition:width .5s}
+
+/* MAIN */
+main{flex:1;display:grid;grid-template-columns:minmax(330px,1fr) 1.3fr;gap:14px;padding:12px 18px 4px;min-height:0}
+.panel{background:var(--card);border-radius:16px;box-shadow:0 6px 24px rgba(65,0,190,.08);padding:15px 18px;display:flex;flex-direction:column;min-height:0;overflow:auto}
+.etapa{font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.6px}
+.qtitle{font-size:18px;font-weight:700;margin:2px 0 4px;line-height:1.3;color:var(--ind2)}
+.ctx{font-size:12.5px;color:var(--mut);margin-bottom:8px}
+.que{background:#EEF3FF;border-left:4px solid var(--blue);border-radius:10px;padding:8px 12px;font-size:13px;margin-bottom:10px;line-height:1.45}
+.que b{color:var(--ind)}
+.opts{display:grid;gap:7px}
+.opt{border:2px solid var(--line);background:#fff;border-radius:11px;padding:9px 12px;text-align:left;font:inherit;font-size:13.5px;cursor:pointer;transition:.15s;color:var(--ink)}
+.opt:hover:not(:disabled){border-color:var(--sky);transform:translateX(2px)}
+.opt.sel{border-color:var(--ind);background:#F1ECFF;font-weight:600}
+.opt.right{border-color:var(--ok);background:#E7F1FF;font-weight:600}
+.opt:disabled{cursor:default}
+.hint{font-size:13px;color:var(--ind);font-weight:600;background:#F6F3FF;border-radius:10px;padding:8px 12px}
+.seq{min-height:40px;border:2px dashed var(--line);border-radius:10px;padding:6px 8px;display:flex;flex-wrap:wrap;gap:4px;font-size:13px;align-items:center;color:var(--mut)}
+.seq span{background:var(--ind);color:#fff;border-radius:8px;padding:2px 8px;font-weight:600}
+.seq em{color:#B5AEDC;font-style:normal}
+.fb{margin-top:10px;min-height:22px;font-size:13.5px}
+.fb .bad{color:var(--err);font-weight:700}
+.fb .good{color:var(--ok);font-weight:700}
+.fb .exp{display:block;color:var(--ink);font-size:12.5px;margin-top:2px}
+.fb .rec{display:block;font-style:italic;color:#7A7896;font-size:12.5px;margin-top:3px}
+.actions{margin-top:auto;padding-top:12px;display:flex;gap:8px;flex-wrap:wrap;background:#fff}
+.btn{border:none;border-radius:11px;padding:10px 18px;font:inherit;font-weight:700;font-size:14px;cursor:pointer;transition:.15s}
+.btn:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.07)}
+.btn.pri{background:var(--ind);color:#fff}
+.btn.sec{background:linear-gradient(90deg,var(--blue),var(--sky));color:#fff}
+.btn.gh{background:#EEEAFB;color:var(--ind)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.viz{display:flex;flex-direction:column;overflow:hidden}
+.vizhead{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.vizhead h2{font-size:13.5px;color:var(--ind2);font-weight:700}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:var(--mut);font-weight:600}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+.chip{background:var(--ind);color:#fff;border-radius:20px;padding:3px 12px;font-size:12px;font-weight:700}
+#svg{width:100%;flex:1;min-height:0}
+.nd{cursor:pointer}
+.nd:hover > *:first-child{filter:brightness(1.12)}
+footer{text-align:center;font-size:12px;color:#7A7896;font-style:italic;padding:4px 0 8px}
+
+/* TOAST */
+.toast{position:fixed;left:50%;top:84px;transform:translate(-50%,-20px);background:var(--ind2);color:#fff;padding:9px 20px;border-radius:30px;font-weight:700;font-size:14px;opacity:0;transition:.4s;z-index:40;box-shadow:0 10px 30px rgba(43,0,133,.35);pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* OVERLAYS */
+.overlay{position:fixed;inset:0;background:rgba(27,22,64,.6);display:none;place-items:center;z-index:20;padding:14px;backdrop-filter:blur(3px)}
+.overlay.show{display:grid}
+.modal{background:#fff;border-radius:20px;max-width:580px;width:100%;padding:22px 24px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:96vh;overflow:auto;animation:pop .35s ease}
+@keyframes pop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+.modal h2{color:var(--ind2);font-size:22px;line-height:1.25;margin-bottom:6px}
+.modal .tag{display:inline-block;background:#EEF3FF;color:var(--blue);font-weight:700;font-size:11px;padding:3px 10px;border-radius:20px;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.modal p{font-size:13.5px;line-height:1.5;margin-bottom:8px}
+.modal ul{font-size:13px;margin:0 0 10px 18px;line-height:1.6}
+.modal input{width:100%;border:2px solid var(--line);border-radius:11px;padding:10px 12px;font:inherit;font-size:14px;margin:4px 0 12px}
+.modal input:focus{outline:none;border-color:var(--ind)}
+
+/* CERT */
+.cert{border-radius:16px;padding:20px;background:linear-gradient(135deg,var(--ind2),var(--ind) 55%,var(--blue));color:#fff;text-align:center;position:relative;overflow:hidden}
+.cert:before{content:"";position:absolute;inset:8px;border:2px solid rgba(255,255,255,.35);border-radius:12px;pointer-events:none}
+.cert .clogo{display:flex;justify-content:center;align-items:center;gap:8px;margin-bottom:6px}
+.cert .clogo .u{font-size:24px;font-weight:800;letter-spacing:-1px}
+.cert .clogo .sep{width:1px;height:22px;background:rgba(255,255,255,.6)}
+.cert .clogo .ec{font-size:10px;line-height:1.05;text-align:left}
+.cert .clogo .ec b{display:block;font-size:13px}
+.cert .k{font-size:12px;letter-spacing:2px;color:#BFD9FF;font-weight:700}
+.cert .medal{font-size:40px;line-height:1.1;margin:4px 0}
+.cert .n{font-size:24px;font-weight:800;margin:2px 0 4px;word-break:break-word}
+.cert p{font-size:13px;margin-bottom:10px;opacity:.95}
+.cert .stats{display:flex;gap:8px;justify-content:center;margin-bottom:10px}
+.cert .stats div{background:rgba(255,255,255,.14);border-radius:10px;padding:6px 10px;min-width:92px}
+.cert .stats b{display:block;font-size:17px}
+.cert .stats span{font-size:10.5px;opacity:.85}
+.cert .f{font-size:11.5px;opacity:.9}
+.share{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px}
+.share button{border:none;border-radius:10px;padding:9px 6px;font:inherit;font-weight:700;font-size:12.5px;cursor:pointer;color:#fff}
+.s-wa{background:#1FAF55}.s-fb{background:#1877F2}.s-x{background:#111}.s-cp{background:#6B6890}.s-st{background:linear-gradient(90deg,var(--ind),var(--sky));grid-column:span 2}
+.replay{width:100%;margin-top:8px}
+
+/* RESPONSIVE */
+@media (min-width:861px){ body{height:100vh;overflow:hidden} }
+@media (min-width:861px) and (max-height:620px){ body{height:auto;overflow:auto} main{min-height:560px} }
+@media (max-width:860px){
+  header{padding:8px 12px;gap:8px}
+  .htitle h1{font-size:15.5px}
+  .progress-wrap{padding:6px 12px}
+  .stage span.t{display:none}
+  .stage{justify-content:center}
+  main{grid-template-columns:1fr;padding:10px 12px 4px}
+  .panel{overflow:visible}
+  .viz{height:330px}
+  .actions{position:sticky;bottom:0;padding-bottom:4px;margin-top:10px}
+  .share{grid-template-columns:repeat(2,1fr)}
+  .s-st{grid-column:span 2}
+}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><span class="u">utel</span><span class="sep"></span><span class="ec">educación<b>continua</b></span></div>
+  <div class="htitle">
+    <h1>🗳️ Arma tu estructura territorial</h1>
+    <p>Módulo 2 · Estructuras de datos avanzadas · Árboles</p>
+  </div>
+  <div class="badges"><span class="badge">Actividad recreativa</span><span class="badge">Semana 1</span></div>
+  <div class="hright">
+    <span class="timer" id="timer">⏱ 00:00</span>
+    <button class="icon-btn" id="mute" title="Sonido">🔊</button>
+  </div>
+</header>
+
+<div class="progress-wrap">
+  <div class="stages" id="stages"></div>
+  <div class="bar"><i id="bar"></i></div>
+</div>
+
+<main>
+  <section class="panel">
+    <div class="etapa" id="etapa"></div>
+    <div class="qtitle" id="qtitle"></div>
+    <div class="ctx" id="ctx"></div>
+    <div class="que" id="que"></div>
+    <div class="opts" id="opts"></div>
+    <div class="fb" id="fb"></div>
+    <div class="actions">
+      <button class="btn pri" id="btnOk">Confirmar</button>
+      <button class="btn gh" id="btnReset">↺ Reiniciar</button>
+      <button class="btn sec" id="btnNext">Siguiente ➜</button>
+    </div>
+  </section>
+  <section class="panel viz">
+    <div class="vizhead"><h2 id="vizTitle"></h2><div class="legend" id="legend"></div></div>
+    <svg id="svg" viewBox="0 0 600 360" preserveAspectRatio="xMidYMid meet"></svg>
+  </section>
+</main>
+
+<footer>Docente: Dr. Armando Maravilla</footer>
+
+<div class="toast" id="toast"></div>
+
+<!-- INTRO -->
+<div class="overlay show" id="introOv">
+  <div class="modal">
+    <span class="tag">Desafío en clase · Semana 1</span>
+    <h2>🗳️ Arma tu estructura territorial</h2>
+    <p>Un candidato usa un <b>sistema de gestión de campaña</b> para controlar su estructura: municipio, secciones, coordinadores, promotores y miles de simpatizantes. Esa estructura es un <b>árbol</b>. Al cargar los folios desde Excel ya ordenados, la búsqueda se volvió lenta. Tu misión es organizarla y dejarla eficiente.</p>
+    <ul>
+      <li><b>Etapa 1.</b> Terminología: raíz, hojas, padre y nivel.</li>
+      <li><b>Etapa 2.</b> Inserta folios en un árbol binario de búsqueda.</li>
+      <li><b>Etapa 3.</b> Elige y aplica recorridos.</li>
+      <li><b>Etapa 4.</b> Balancea el árbol con rotaciones AVL.</li>
+    </ul>
+    <div class="que">👉 <b>Qué hacer:</b> escribe tu nombre como aparecerá en tu certificado y presiona <b>Comenzar</b>.</div>
+    <input id="nameIn" maxlength="40" placeholder="Tu nombre completo" autocomplete="name">
+    <button class="btn pri" id="btnStart" disabled style="width:100%">Comenzar ➜</button>
+  </div>
+</div>
+
+<!-- CERTIFICADO -->
+<div class="overlay" id="certOv">
+  <div class="modal">
+    <div class="cert" id="cert">
+      <div class="clogo"><span class="u">utel</span><span class="sep"></span><span class="ec">educación<b>continua</b></span></div>
+      <div class="k">CERTIFICADO DE LOGRO</div>
+      <div class="medal" id="cMedal">🏆</div>
+      <div class="n" id="cName"></div>
+      <p>completó el desafío <b>Arma tu estructura territorial</b><br>Árboles: BST, recorridos y balanceo AVL</p>
+      <div class="stats">
+        <div><b id="cScore"></b><span>aciertos a la primera</span></div>
+        <div><b id="cTime"></b><span>tiempo</span></div>
+        <div><b id="cDate"></b><span>fecha</span></div>
+      </div>
+      <div class="f">Diplomado en Ciencia de datos e inteligencia artificial<br>Módulo 2 · Semana 1<br><i>Docente: Dr. Armando Maravilla</i></div>
+    </div>
+    <div class="que" style="margin-top:12px;margin-bottom:0">👉 <b>Qué hacer:</b> comparte tu logro o descarga la imagen para tus historias.</div>
+    <div class="share">
+      <button class="s-wa" id="shWa">WhatsApp</button>
+      <button class="s-fb" id="shFb">Facebook</button>
+      <button class="s-x" id="shX">X</button>
+      <button class="s-cp" id="shCp">Copiar</button>
+      <button class="s-st" id="shSt">📲 Imagen para historias</button>
+    </div>
+    <button class="btn gh replay" id="btnReplay">↺ Jugar de nuevo</button>
+  </div>
+</div>
+
+<canvas id="confetti"></canvas>
+
+<script>
+const $ = s => document.querySelector(s);
+const NS = 'http://www.w3.org/2000/svg';
+const STAGES = ['Terminología', 'Inserción BST', 'Recorridos', 'Balanceo AVL'];
+
+/* ---------- SONIDO ---------- */
+let ac = null, muted = false;
+function tone(f, d, type = 'sine', t0 = 0, vol = .12) {
+  if (muted) return;
+  try {
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = type; o.frequency.value = f;
+    const t = ac.currentTime + t0;
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(.0001, t + d);
+    o.connect(g).connect(ac.destination);
+    o.start(t); o.stop(t + d + .03);
+  } catch (e) {}
+}
+const sfx = {
+  click: () => tone(640, .06, 'triangle', 0, .06),
+  ok: () => { tone(523, .12); tone(659, .12, 'sine', .1); tone(784, .22, 'sine', .2); },
+  bad: () => { tone(190, .28, 'sawtooth', 0, .07); },
+  stage: () => { [523, 659, 784, 1047].forEach((f, i) => tone(f, .18, 'triangle', i * .1, .1)); },
+  win: () => { [523, 659, 784, 1047, 784, 1047, 1319].forEach((f, i) => tone(f, .24, 'triangle', i * .13, .12)); }
+};
+$('#mute').onclick = () => { muted = !muted; $('#mute').textContent = muted ? '🔇' : '🔊'; };
+
+/* ---------- CONFETI ---------- */
+const cv = $('#confetti'), cx = cv.getContext('2d');
+let parts = [], anim = false;
+function resizeCv() { cv.width = innerWidth; cv.height = innerHeight; }
+addEventListener('resize', resizeCv); resizeCv();
+function confetti(n = 120, y = .35) {
+  const cols = ['#4100BE', '#1F5BFF', '#3FA9FF', '#8A5CFF', '#FFFFFF', '#FFC83D'];
+  for (let i = 0; i < n; i++) parts.push({
+    x: innerWidth / 2 + (Math.random() - .5) * 260, y: innerHeight * y,
+    vx: (Math.random() - .5) * 15, vy: Math.random() * -13 - 4,
+    s: Math.random() * 7 + 5, c: cols[i % cols.length], r: Math.random() * 6, vr: (Math.random() - .5) * .3, life: 0
+  });
+  if (!anim) loop();
+}
+function loop() {
+  anim = true;
+  cx.clearRect(0, 0, cv.width, cv.height);
+  parts.forEach(p => {
+    p.vy += .35; p.x += p.vx; p.y += p.vy; p.vx *= .99; p.r += p.vr; p.life++;
+    cx.save(); cx.translate(p.x, p.y); cx.rotate(p.r); cx.fillStyle = p.c;
+    cx.fillRect(-p.s / 2, -p.s / 3, p.s, p.s * .6); cx.restore();
+  });
+  parts = parts.filter(p => p.y < cv.height + 40 && p.life < 280);
+  if (parts.length) requestAnimationFrame(loop); else { anim = false; cx.clearRect(0, 0, cv.width, cv.height); }
+}
+
+/* ---------- TOAST ---------- */
+function toast(t) {
+  const el = $('#toast'); el.textContent = t; el.classList.add('show');
+  clearTimeout(toast._t); toast._t = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+/* ---------- ÁRBOLES ---------- */
+function N(v, l = null, r = null) { return { v, l, r }; }
+function ins(root, v) { if (!root) return N(v); if (v < root.v) root.l = ins(root.l, v); else root.r = ins(root.r, v); return root; }
+function build(a) { let r = null; a.forEach(v => r = ins(r, v)); return r; }
+function slotFor(root, v) { let c = root; while (true) { if (v < c.v) { if (!c.l) return c.v + 'L'; c = c.l; } else { if (!c.r) return c.v + 'R'; c = c.r; } } }
+function findN(n, v) { if (!n) return null; if (n.v === v) return n; return findN(v < n.v ? n.l : n.r, v); }
+function h(n) { return n ? 1 + Math.max(h(n.l), h(n.r)) : -1; }
+function fb(n) { return h(n.l) - h(n.r); }
+const fmtSign = x => x > 0 ? '+' + x : (x < 0 ? '−' + Math.abs(x) : '0');
+
+const INS = [1050, 1030, 1070, 1020, 1045, 1060];
+
+const ORG = { id: 'M', t: '🏛 Municipio', c: [
+  { id: 'S1', t: '🗺 Sección 0101', c: [
+    { id: 'A', t: '👤 Coord. Ana', c: [ { id: 'L', t: '📣 Prom. Luis', c: [] }, { id: 'R', t: '📣 Prom. Rosa', c: [] } ] },
+    { id: 'B', t: '👤 Coord. Beto', c: [] } ] },
+  { id: 'S2', t: '🗺 Sección 0102', c: [
+    { id: 'C', t: '👤 Coord. Carla', c: [ { id: 'I', t: '📣 Prom. Iván', c: [] } ] } ] }
+] };
+const LVL = ['#2B0085', '#4100BE', '#1F5BFF', '#3FA9FF'];
+
+/* ---------- PASOS ---------- */
+const steps = [
+  { st: 0, type: 'node', ans: 'M', title: '¿Dónde empieza la estructura?',
+    ctx: 'El sistema de campaña organiza el territorio como un árbol: municipio, secciones, coordinadores y promotores.',
+    que: 'toca en el diagrama el nodo <b>raíz</b> y después presiona <b>Confirmar</b>.',
+    rec: 'La raíz es el único nodo que no tiene padre; es el punto de entrada a todo el árbol.',
+    ok: 'Municipio es la raíz: desde ahí se llega a cualquier nodo.' },
+  { st: 0, type: 'multi', ans: ['L', 'R', 'B', 'I'], title: 'Encuentra las hojas',
+    ctx: 'Las hojas son quienes ya no tienen a nadie a su cargo.',
+    que: 'toca <b>todas las hojas</b> del árbol (puedes elegir varias; toca de nuevo para quitar) y presiona <b>Confirmar</b>.',
+    rec: 'Una hoja es un nodo sin hijos, sin importar en qué nivel esté. Revisa con cuidado a cada coordinador.',
+    ok: 'Luis, Rosa, Beto e Iván no tienen hijos: son hojas. Beto es hoja aunque esté en el nivel 2.' },
+  { st: 0, type: 'node', ans: 'C', title: '¿Quién es su padre?',
+    ctx: 'Prom. Iván reporta su avance a una sola persona.',
+    que: 'toca el nodo <b>padre</b> de <b>Prom. Iván</b> y presiona <b>Confirmar</b>.',
+    rec: 'El padre es el nodo inmediatamente superior al que está conectado.',
+    ok: 'Coord. Carla es el padre de Iván; Iván es su hijo.' },
+  { st: 0, type: 'mc', opts: ['Nivel 1', 'Nivel 2', 'Nivel 3', 'Nivel 4'], ans: 2, title: 'Mide la profundidad',
+    ctx: 'La raíz (Municipio) está en el nivel 0.',
+    que: 'elige el <b>nivel</b> en el que está <b>Prom. Rosa</b> y presiona <b>Confirmar</b>.',
+    rec: 'El nivel cuenta las conexiones desde la raíz: Municipio 0, Sección 1, Coordinador 2, Promotor 3.',
+    ok: 'Nivel 3. Como es el nivel más profundo, la altura del árbol también es 3.' },
+
+  ...INS.slice(1).map((v, j) => ({ st: 1, type: 'ins', val: v, k: j + 1, title: `Registra el folio ${v}`,
+    ctx: 'Los folios de simpatizantes se guardan en un árbol binario de búsqueda (BST) para encontrarlos rápido.',
+    que: `compara <b>${v}</b> desde la raíz y toca el <b>espacio vacío (?)</b> donde debe quedar. Luego presiona <b>Confirmar</b>.`,
+    rec: 'Si el folio es menor que el nodo, baja por la izquierda; si es mayor, por la derecha. Repite hasta llegar a un espacio vacío.',
+    ok: `${v} quedó en su lugar y el árbol conserva su orden.` })),
+  { st: 1, type: 'mc', vis: 'search', opts: ['1 comparación', '2 comparaciones', '3 comparaciones', '6 comparaciones'], ans: 2,
+    title: 'Busca al simpatizante 1060',
+    ctx: 'El coordinador pide los datos del folio 1060.',
+    que: 'elige cuántos nodos hay que <b>comparar</b> para encontrarlo y presiona <b>Confirmar</b>.',
+    rec: 'Cuenta cada nodo que visitas desde la raíz: 1050, después 1070 y al final 1060.',
+    ok: '3 comparaciones: en cada paso se descarta una parte del árbol. En una lista podrías revisar los 6.' },
+
+  { st: 2, type: 'mc', vis: 'full', opts: ['Preorden', 'Inorden', 'Postorden'], ans: 1, title: 'Lista para el candidato',
+    ctx: 'El candidato quiere todos los folios ordenados de menor a mayor.',
+    que: 'elige el <b>recorrido</b> que entrega esa lista y presiona <b>Confirmar</b>.',
+    rec: 'Inorden visita izquierda, nodo y derecha; en un BST eso entrega los datos ordenados.',
+    ok: 'Inorden: 1020, 1030, 1045, 1050, 1060, 1070.' },
+  { st: 2, type: 'mc', vis: 'full', opts: ['Preorden', 'Inorden', 'Postorden'], ans: 0, title: 'Replicar la estructura',
+    ctx: 'Se abrirá un municipio vecino y quieren copiar exactamente la misma forma del árbol.',
+    que: 'elige el <b>recorrido</b> adecuado para copiar el árbol y presiona <b>Confirmar</b>.',
+    rec: 'Preorden procesa cada nodo antes que a sus hijos, por eso permite reconstruir la misma forma.',
+    ok: 'Preorden: primero la raíz y después sus subárboles.' },
+  { st: 2, type: 'mc', vis: 'full', opts: ['Preorden', 'Inorden', 'Postorden'], ans: 2, title: 'Dar de baja una sección',
+    ctx: 'Una sección se cierra: hay que eliminar primero a los hijos y al final al nodo padre.',
+    que: 'elige el <b>recorrido</b> que procesa así los nodos y presiona <b>Confirmar</b>.',
+    rec: 'Postorden visita izquierda, derecha y al final el nodo; los hijos siempre van antes que el padre.',
+    ok: 'Postorden: ideal para borrar o liberar memoria sin dejar nodos huérfanos.' },
+  { st: 2, type: 'seq', ans: [1050, 1030, 1020, 1045, 1070, 1060], title: 'Recorre en preorden',
+    ctx: 'Ahora hazlo tú: genera la copia de la estructura.',
+    que: 'toca los nodos en orden <b>PREORDEN</b> (nodo, izquierda, derecha). Si te equivocas usa <b>Reiniciar</b>. Al terminar presiona <b>Confirmar</b>.',
+    rec: 'Preorden: nodo, izquierda, derecha. Empieza en la raíz y termina todo el lado izquierdo antes de pasar al derecho.',
+    ok: '1050, 1030, 1020, 1045, 1070, 1060. ¡Estructura copiada!' },
+
+  { st: 3, type: 'mc', vis: 'chain', opts: ['+2', '0', '−1', '−2'], ans: 3, title: 'El árbol se volvió una lista',
+    ctx: 'Se importaron desde Excel los folios 2001, 2002 y 2003 ya ordenados. Todos quedaron a la derecha.',
+    que: 'calcula el <b>factor de balance</b> de 2001 (altura izquierda menos altura derecha) y presiona <b>Confirmar</b>.',
+    rec: 'Un subárbol vacío tiene altura −1 y una hoja altura 0. En 2001: izquierda −1, derecha 1. Entonces −1 − 1 = −2.',
+    ok: '−2: está fuera del rango permitido (−1, 0, +1). El árbol está desbalanceado.' },
+  { st: 3, type: 'mc', vis: 'chain', opts: ['Izquierdo Izquierdo', 'Derecho Derecho', 'Izquierdo Derecho', 'Derecho Izquierdo'], ans: 1,
+    title: 'Identifica el caso',
+    ctx: 'El desequilibrio está en 2001 y el folio nuevo (2003) entró a la derecha de su hijo derecho.',
+    que: 'elige el <b>caso de desequilibrio</b> y presiona <b>Confirmar</b>.',
+    rec: 'Sigue el camino desde el nodo desbalanceado hasta el nodo nuevo: derecha y otra vez derecha.',
+    ok: 'Caso Derecho Derecho.' },
+  { st: 3, type: 'mc', vis: 'chainFix', opts: ['Rotación derecha sobre 2001', 'Rotación izquierda sobre 2001', 'Rotación doble izquierda-derecha', 'No requiere rotación'], ans: 1,
+    title: 'Aplica la rotación',
+    ctx: 'Hay que corregirlo antes del día de la elección.',
+    que: 'elige la <b>rotación</b> que equilibra el árbol y presiona <b>Confirmar</b>.',
+    rec: 'En el caso Derecho Derecho el exceso está a la derecha; se rota hacia la izquierda para subir al hijo derecho.',
+    ok: '2002 sube como nueva raíz; 2001 y 2003 quedan como sus hijos. Factor de balance: 0.' },
+  { st: 3, type: 'mc', vis: 'zig', opts: [
+      'Izquierdo Izquierdo: rotación derecha en 3010',
+      'Izquierdo Derecho: rotación izquierda en 3005 y luego derecha en 3010',
+      'Derecho Izquierdo: rotación derecha en 3005 y luego izquierda en 3010',
+      'Derecho Derecho: rotación izquierda en 3010'], ans: 1,
+    title: 'Un caso más difícil',
+    ctx: 'Ahora llegaron los folios 3010, 3005 y 3007, en ese orden.',
+    que: 'elige el <b>caso y la rotación</b> que lo corrigen y presiona <b>Confirmar</b>.',
+    rec: 'El camino desde 3010 hasta el folio nuevo es izquierda y luego derecha: es un caso de rotación doble.',
+    ok: 'Rotación doble: 3007 queda como raíz con 3005 y 3010 como hijos.' },
+  { st: 3, type: 'mc', vis: 'bars', opts: ['1,000,000', '500,000', 'Alrededor de 20', '1'], ans: 2,
+    title: '¿Valió la pena balancear?',
+    ctx: 'El sistema real tendrá 1,000,000 de simpatizantes registrados.',
+    que: 'elige cuántas comparaciones, aproximadamente, toma encontrar un folio en el <b>árbol balanceado</b> y presiona <b>Confirmar</b>.',
+    rec: 'En un árbol balanceado la búsqueda es O(log n): log₂(1,000,000) ≈ 20.',
+    ok: 'Alrededor de 20 contra hasta 1,000,000 en una lista: esa es la diferencia entre O(log n) y O(n).' }
+];
+
+/* ---------- ESTADO ---------- */
+let idx = 0, sel = null, solved = false, tries = 0, firstOk = 0, playerName = '';
+let t0 = 0, elapsed = 0, timerId = null;
+
+function resetSel() {
+  const s = steps[idx];
+  sel = s.type === 'multi' ? new Set() : (s.type === 'seq' ? [] : null);
+}
+function hasSel() {
+  const s = steps[idx];
+  if (s.type === 'multi') return sel.size > 0;
+  if (s.type === 'seq') return sel.length === s.ans.length;
+  return sel !== null;
+}
+
+/* ---------- DIBUJO SVG ---------- */
+function el(t, a, p) { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; }
+function txt(p, x, y, s, a = {}) { const e = el('text', Object.assign({ x, y, 'text-anchor': 'middle' }, a), p); e.textContent = s; return e; }
+function defs(svg) {
+  const d = el('defs', {}, svg);
+  const g = el('linearGradient', { id: 'gnode', x1: 0, y1: 0, x2: 1, y2: 1 }, d);
+  el('stop', { offset: '0%', 'stop-color': '#4100BE' }, g);
+  el('stop', { offset: '100%', 'stop-color': '#1F5BFF' }, g);
+  const f = el('filter', { id: 'sh', x: '-30%', y: '-30%', width: '160%', height: '160%' }, d);
+  el('feDropShadow', { dx: 0, dy: 3, stdDeviation: 3, 'flood-color': '#2B0085', 'flood-opacity': .25 }, f);
+}
+function freshSvg() { const svg = $('#svg'); svg.innerHTML = ''; svg.setAttribute('viewBox', '0 0 600 360'); defs(svg); return svg; }
+
+function drawOrg(s) {
+  const svg = freshSvg();
+  let leaf = 0; const nodes = [];
+  (function lay(n, d) {
+    if (!n.c.length) n.x = leaf++;
+    else { n.c.forEach(ch => lay(ch, d + 1)); n.x = (n.c[0].x + n.c[n.c.length - 1].x) / 2; }
+    n.d = d; nodes.push(n);
+  })(ORG, 0);
+  const X = x => 72 + x * (456 / (leaf - 1)), Y = d => 40 + d * 93;
+  nodes.forEach(n => n.c.forEach(ch => {
+    const x1 = X(n.x), y1 = Y(n.d) + 17, x2 = X(ch.x), y2 = Y(ch.d) - 17, m = (y1 + y2) / 2;
+    el('path', { d: `M${x1},${y1} C${x1},${m} ${x2},${m} ${x2},${y2}`, fill: 'none', stroke: '#B9AEEA', 'stroke-width': 3 }, svg);
+  }));
+  let chosen = new Set();
+  if (s.type === 'multi') chosen = sel; else if (s.type === 'node' && sel) chosen = new Set([sel]);
+  if (solved && s.type !== 'mc') chosen = new Set(Array.isArray(s.ans) ? s.ans : [s.ans]);
+  nodes.forEach(n => {
+    const x = X(n.x), y = Y(n.d), on = chosen.has(n.id);
+    const g = el('g', { class: (s.type === 'mc' || solved) ? '' : 'nd', filter: 'url(#sh)' }, svg);
+    el('rect', { x: x - 57, y: y - 17, width: 114, height: 34, rx: 11, fill: LVL[n.d], stroke: on ? '#FFC83D' : 'rgba(255,255,255,.0)', 'stroke-width': on ? 4 : 0 }, g);
+    txt(g, x, y + 4.5, n.t, { 'font-size': 12, 'font-weight': 600, fill: '#fff' });
+    if (on) { el('circle', { cx: x + 53, cy: y - 15, r: 9, fill: '#FFC83D' }, g); txt(g, x + 53, y - 11, '✓', { 'font-size': 11, 'font-weight': 800, fill: '#2B0085' }); }
+    if (!(s.type === 'mc' || solved)) g.onclick = () => pickOrg(n.id);
+  });
+  if (solved && s.type === 'mc') {
+    ['Nivel 0', 'Nivel 1', 'Nivel 2', 'Nivel 3'].forEach((t, d) => txt(svg, 590, Y(d) + 4, t, { 'text-anchor': 'end', 'font-size': 10, fill: '#6B6890', 'font-weight': 700 }));
+  }
+}
+
+function drawBinary(root, o = {}) {
+  const svg = freshSvg();
+  const items = []; let maxD = 0;
+  (function walk(n, d, i) { if (!n) return; items.push({ n, d, i }); maxD = Math.max(maxD, d); walk(n.l, d + 1, i * 2); walk(n.r, d + 1, i * 2 + 1); })(root, 0, 0);
+  const ghosts = [];
+  if (o.ghost) items.forEach(it => {
+    if (!it.n.l) ghosts.push({ id: it.n.v + 'L', d: it.d + 1, i: it.i * 2, p: it });
+    if (!it.n.r) ghosts.push({ id: it.n.v + 'R', d: it.d + 1, i: it.i * 2 + 1, p: it });
+  });
+  const depth = Math.max(maxD + (o.ghost ? 1 : 0), 1);
+  const gap = Math.min(100, 270 / depth);
+  const pos = (d, i) => ({ x: 30 + (i + .5) / Math.pow(2, d) * 540, y: 45 + d * gap });
+  items.forEach(it => {
+    const p = pos(it.d, it.i);
+    [['l', 0], ['r', 1]].forEach(([k, s]) => {
+      if (it.n[k]) { const q = pos(it.d + 1, it.i * 2 + s);
+        const onPath = o.hl && o.hl.has(it.n.v) && o.hl.has(it.n[k].v);
+        el('line', { x1: p.x, y1: p.y, x2: q.x, y2: q.y, stroke: onPath ? '#FFC83D' : '#B9AEEA', 'stroke-width': onPath ? 5 : 3 }, svg); }
+    });
+  });
+  ghosts.forEach(gh => { const p = pos(gh.p.d, gh.p.i), q = pos(gh.d, gh.i);
+    el('line', { x1: p.x, y1: p.y, x2: q.x, y2: q.y, stroke: '#CFC8EE', 'stroke-width': 2, 'stroke-dasharray': '5 5' }, svg); });
+  ghosts.forEach(gh => {
+    const q = pos(gh.d, gh.i), on = o.sel === gh.id;
+    const g = el('g', { class: 'nd' }, svg);
+    el('circle', { cx: q.x, cy: q.y, r: 21, fill: on ? '#FFC83D' : '#F4F1FF', stroke: on ? '#2B0085' : '#9C8FE0', 'stroke-width': 2, 'stroke-dasharray': on ? '' : '4 3' }, g);
+    txt(g, q.x, q.y + 5, on ? o.newVal : '?', { 'font-size': on ? 12 : 15, 'font-weight': 800, fill: on ? '#2B0085' : '#7B6CD6' });
+    g.onclick = () => o.onPick && o.onPick(gh.id);
+  });
+  items.forEach(it => {
+    const p = pos(it.d, it.i), v = it.n.v;
+    const hl = o.hl && o.hl.has(v), sq = o.seq ? o.seq.indexOf(v) : -1;
+    const g = el('g', { class: o.pick ? 'nd' : '', filter: 'url(#sh)' }, svg);
+    el('circle', { cx: p.x, cy: p.y, r: 26, fill: (hl || sq >= 0) ? '#0B2A8F' : 'url(#gnode)',
+      stroke: it.n.isNew ? '#FFC83D' : (hl ? '#FFC83D' : '#fff'), 'stroke-width': (it.n.isNew || hl) ? 4 : 2 }, g);
+    txt(g, p.x, p.y + 4.5, v, { 'font-size': 13, 'font-weight': 700, fill: '#fff' });
+    if (sq >= 0) { el('circle', { cx: p.x + 21, cy: p.y - 21, r: 11, fill: '#FFC83D' }, g);
+      txt(g, p.x + 21, p.y - 17, sq + 1, { 'font-size': 11, 'font-weight': 800, fill: '#2B0085' }); }
+    if (o.label) { const lab = o.label(it.n); if (lab) txt(g, p.x, p.y + 44, lab, { 'font-size': 11.5, fill: '#4100BE', 'font-weight': 700 }); }
+    if (o.pick) g.onclick = () => o.pick(v);
+  });
+  if (o.caption) txt(svg, 300, 350, o.caption, { 'font-size': 12.5, fill: '#6B6890', 'font-weight': 600 });
+}
+
+function drawBars(done) {
+  const svg = freshSvg();
+  txt(svg, 300, 32, 'Comparaciones para encontrar un folio entre 1,000,000', { 'font-size': 14, 'font-weight': 700, fill: '#2B0085' });
+  const rows = [
+    { lab: 'Lista (O(n))', w: 440, val: 'hasta 1,000,000', col: '#D62D4B' },
+    { lab: 'BST desbalanceado', w: 440, val: 'hasta 1,000,000', col: '#9C8FE0' },
+    { lab: 'Árbol AVL (O(log n))', w: done ? 8 : 0, val: done ? '≈ 20' : '?', col: '#1F5BFF' }
+  ];
+  rows.forEach((r, i) => {
+    const y = 80 + i * 85;
+    txt(svg, 20, y, r.lab, { 'text-anchor': 'start', 'font-size': 13, 'font-weight': 700, fill: '#1B1640' });
+    el('rect', { x: 20, y: y + 10, width: 540, height: 30, rx: 8, fill: '#EEEAFB' }, svg);
+    const b = el('rect', { x: 20, y: y + 10, width: 0, height: 30, rx: 8, fill: r.col }, svg);
+    requestAnimationFrame(() => { b.style.transition = 'width .9s ease'; b.setAttribute('width', Math.max(r.w, 0)); });
+    txt(svg, r.w > 100 ? 30 + r.w - 10 : 44 + r.w, y + 31, r.val, { 'text-anchor': r.w > 100 ? 'end' : 'start', 'font-size': 13, 'font-weight': 800, fill: r.w > 100 ? '#fff' : '#1F5BFF' });
+  });
+}
+
+function drawViz(s) {
+  const T = $('#vizTitle'), L = $('#legend');
+  if (s.st === 0) {
+    T.textContent = 'Estructura territorial de la campaña';
+    L.innerHTML = ['Municipio', 'Sección', 'Coordinador', 'Promotor'].map((t, i) => `<span><i style="background:${LVL[i]}"></i>${t}</span>`).join('');
+    drawOrg(s); return;
+  }
+  if (s.type === 'ins') {
+    T.textContent = 'Árbol binario de búsqueda de folios';
+    L.innerHTML = `<span class="chip">Folio nuevo: ${s.val}</span>`;
+    if (solved) { const t = build(INS.slice(0, s.k + 1)); findN(t, s.val).isNew = true; drawBinary(t, { caption: 'Menores a la izquierda · mayores a la derecha' }); }
+    else drawBinary(build(INS.slice(0, s.k)), { ghost: true, sel, newVal: s.val, onPick: id => { sel = id; sfx.click(); render(); }, caption: 'Toca un espacio vacío (?)' });
+    return;
+  }
+  if (s.vis === 'search') {
+    T.textContent = 'Búsqueda del folio 1060';
+    L.innerHTML = '<span><i style="background:#FFC83D"></i>Camino recorrido</span>';
+    drawBinary(build(INS), { hl: solved ? new Set([1050, 1070, 1060]) : null, caption: solved ? '1050 → 1070 → 1060' : 'Busca desde la raíz' });
+    return;
+  }
+  if (s.vis === 'full' || s.type === 'seq') {
+    T.textContent = 'Árbol de folios de simpatizantes';
+    L.innerHTML = s.type === 'seq' ? '<span><i style="background:#FFC83D"></i>Orden en que tocaste</span>' : '';
+    const cap = s.type === 'seq' ? 'Toca los nodos en orden' : (solved ? s.ok.split(':')[0] : 'Analiza el árbol');
+    drawBinary(build(INS), { seq: s.type === 'seq' ? sel : null, pick: (s.type === 'seq' && !solved) ? pickSeq : null, caption: cap });
+    return;
+  }
+  const lbl = n => `h=${h(n)}  FB=${fmtSign(fb(n))}`;
+  const lblH = n => `h=${h(n)}`;
+  if (s.vis === 'chain') {
+    T.textContent = 'Folios cargados ya ordenados';
+    L.innerHTML = '<span>h = altura · FB = factor de balance</span>';
+    const t = N(2001, null, N(2002, null, N(2003)));
+    drawBinary(t, { label: (solved || idx > steps.findIndex(x => x.vis === 'chain')) ? lbl : lblH, hl: solved ? new Set([2001, 2002, 2003]) : null, caption: 'El árbol se ve como una lista: búsqueda O(n)' });
+    return;
+  }
+  if (s.vis === 'chainFix') {
+    T.textContent = solved ? 'Después de la rotación' : 'Antes de la rotación';
+    L.innerHTML = '<span>h = altura · FB = factor de balance</span>';
+    if (solved) drawBinary(N(2002, N(2001), N(2003)), { label: lbl, caption: 'Árbol balanceado ✔' });
+    else drawBinary(N(2001, null, N(2002, null, N(2003))), { label: lbl, caption: '¿Qué rotación sube a 2002?' });
+    return;
+  }
+  if (s.vis === 'zig') {
+    T.textContent = solved ? 'Después de la rotación doble' : 'Folios 3010, 3005 y 3007';
+    L.innerHTML = '<span>h = altura · FB = factor de balance</span>';
+    if (solved) drawBinary(N(3007, N(3005), N(3010)), { label: lbl, caption: 'Árbol balanceado ✔' });
+    else drawBinary(N(3010, N(3005, null, N(3007))), { label: lbl, caption: 'Observa el camino: izquierda y luego derecha' });
+    return;
+  }
+  if (s.vis === 'bars') { T.textContent = 'Impacto en el sistema real'; L.innerHTML = ''; drawBars(solved); }
+}
+
+function pickOrg(id) {
+  const s = steps[idx]; if (solved) return;
+  sfx.click();
+  if (s.type === 'multi') { sel.has(id) ? sel.delete(id) : sel.add(id); }
+  else sel = id;
+  render();
+}
+function pickSeq(v) {
+  const s = steps[idx]; if (solved) return;
+  if (sel.includes(v) || sel.length >= s.ans.length) return;
+  sfx.click(); sel.push(v); render();
+}
+
+/* ---------- RENDER ---------- */
+function render() {
+  const s = steps[idx];
+  $('#etapa').textContent = `Etapa ${s.st + 1} de 4 · ${STAGES[s.st]}`;
+  $('#qtitle').textContent = s.title;
+  $('#ctx').textContent = s.ctx;
+  $('#que').innerHTML = '👉 <b>Qué hacer:</b> ' + s.que;
+  const box = $('#opts'); box.innerHTML = '';
+  if (s.type === 'mc') {
+    s.opts.forEach((t, i) => {
+      const b = document.createElement('button');
+      b.className = 'opt' + (sel === i ? ' sel' : '') + (solved && i === s.ans ? ' right' : '');
+      b.textContent = t; b.disabled = solved;
+      b.onclick = () => { sel = i; sfx.click(); render(); };
+      box.appendChild(b);
+    });
+  } else if (s.type === 'seq') {
+    const d = document.createElement('div'); d.className = 'seq';
+    d.innerHTML = sel.length ? sel.map(v => `<span>${v}</span>`).join('<em>→</em>') : 'Toca los nodos del árbol en orden…';
+    box.appendChild(d);
+  } else {
+    const d = document.createElement('div'); d.className = 'hint';
+    if (s.type === 'ins') d.textContent = sel ? `Espacio elegido para ${s.val} ✓` : `Folio nuevo: ${s.val} · elige su lugar en el árbol`;
+    else if (s.type === 'multi') d.textContent = `Nodos seleccionados: ${sel.size}`;
+    else d.textContent = sel ? 'Nodo seleccionado ✓' : 'Selecciona un nodo en el diagrama';
+    box.appendChild(d);
+  }
+  $('#btnOk').disabled = solved || !hasSel();
+  $('#btnNext').disabled = !solved;
+  $('#btnNext').textContent = idx === steps.length - 1 ? 'Ver certificado 🏆' : 'Siguiente ➜';
+  $('#btnReset').style.display = s.type === 'seq' ? '' : 'none';
+  $('#btnReset').disabled = solved;
+  drawViz(s);
+  updateProgress();
+}
+
+function updateProgress() {
+  const s = steps[idx];
+  const done = idx + (solved ? 1 : 0);
+  $('#bar').style.width = (done / steps.length * 100) + '%';
+  $('#stages').innerHTML = STAGES.map((t, i) => {
+    const lastOfStage = steps.map(x => x.st).lastIndexOf(i);
+    const cls = (i < s.st || (i === s.st && solved && idx === lastOfStage)) ? 'done' : (i === s.st ? 'on' : '');
+    return `<div class="stage ${cls}"><span class="n">${cls === 'done' ? '✓' : i + 1}</span><span class="t">${t}</span></div>`;
+  }).join('');
+}
+
+/* ---------- VALIDACIÓN ---------- */
+function check() {
+  const s = steps[idx];
+  if (s.type === 'mc' || s.type === 'node') return sel === s.ans;
+  if (s.type === 'multi') return sel.size === s.ans.length && s.ans.every(a => sel.has(a));
+  if (s.type === 'ins') return sel === slotFor(build(INS.slice(0, s.k)), s.val);
+  if (s.type === 'seq') return s.ans.every((v, i) => sel[i] === v);
+  return false;
+}
+
+$('#btnOk').onclick = () => {
+  if (solved || !hasSel()) return;
+  const s = steps[idx];
+  if (check()) {
+    solved = true;
+    if (tries === 0) firstOk++;
+    sfx.ok(); confetti(45, .3);
+    $('#fb').innerHTML = `<span class="good">✔ ¡Correcto!</span><span class="exp">${s.ok}</span>`;
+  } else {
+    tries++;
+    sfx.bad();
+    $('#fb').innerHTML = `<span class="bad">✖ Revisa tu respuesta.</span><span class="rec">Recuerda: ${s.rec}</span>`;
+  }
+  render();
+};
+
+$('#btnReset').onclick = () => { if (solved) return; sel = []; sfx.click(); render(); };
+
+$('#btnNext').onclick = () => {
+  if (!solved) return;
+  const prevSt = steps[idx].st;
+  if (idx === steps.length - 1) { finish(); return; }
+  idx++; solved = false; tries = 0; resetSel();
+  $('#fb').innerHTML = '';
+  if (steps[idx].st !== prevSt) { sfx.stage(); confetti(90, .25); toast(`🎉 Etapa ${prevSt + 1} completada: ${STAGES[prevSt]}`); }
+  render();
+};
+
+/* ---------- TIEMPO ---------- */
+const fmtT = sec => `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`;
+function startTimer() {
+  t0 = Date.now(); clearInterval(timerId);
+  timerId = setInterval(() => { elapsed = Math.floor((Date.now() - t0) / 1000); $('#timer').textContent = '⏱ ' + fmtT(elapsed); }, 500);
+}
+
+/* ---------- INICIO ---------- */
+$('#nameIn').addEventListener('input', e => { $('#btnStart').disabled = e.target.value.trim().length < 2; });
+$('#nameIn').addEventListener('keydown', e => { if (e.key === 'Enter' && !$('#btnStart').disabled) $('#btnStart').click(); });
+$('#btnStart').onclick = () => {
+  playerName = $('#nameIn').value.trim();
+  $('#introOv').classList.remove('show');
+  sfx.stage(); startTimer();
+};
+
+/* ---------- FINAL Y CERTIFICADO ---------- */
+function finish() {
+  clearInterval(timerId);
+  elapsed = Math.floor((Date.now() - t0) / 1000);
+  $('#bar').style.width = '100%';
+  $('#stages').innerHTML = STAGES.map(t => `<div class="stage done"><span class="n">✓</span><span class="t">${t}</span></div>`).join('');
+  const total = steps.length;
+  $('#cName').textContent = playerName;
+  $('#cScore').textContent = `${firstOk}/${total}`;
+  $('#cTime').textContent = fmtT(elapsed);
+  $('#cDate').textContent = new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' });
+  $('#cMedal').textContent = firstOk >= total - 2 ? '🏆' : (firstOk >= total - 6 ? '🥈' : '🥉');
+  sfx.win(); confetti(220, .3); setTimeout(() => confetti(160, .2), 700);
+  $('#certOv').classList.add('show');
+}
+
+function shareText() {
+  return `🗳️ Completé el desafío "Arma tu estructura territorial" (Árboles: BST, recorridos y AVL) con ${firstOk}/${steps.length} aciertos a la primera en ${fmtT(elapsed)}. Diplomado en Ciencia de datos e inteligencia artificial · UTEL Educación Continua.`;
+}
+const pageUrl = () => location.href.split('#')[0];
+$('#shWa').onclick = () => window.open('https://wa.me/?text=' + encodeURIComponent(shareText() + ' ' + pageUrl()), '_blank');
+$('#shFb').onclick = () => window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(pageUrl()) + '&quote=' + encodeURIComponent(shareText()), '_blank');
+$('#shX').onclick = () => window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(shareText()) + '&url=' + encodeURIComponent(pageUrl()), '_blank');
+$('#shCp').onclick = async () => {
+  const t = shareText() + ' ' + pageUrl();
+  try { await navigator.clipboard.writeText(t); }
+  catch (e) { const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
+  toast('📋 Texto copiado');
+};
+
+function wrapText(g, text, x, y, maxW, lh) {
+  const words = String(text).split(' '); let line = '';
+  for (const w of words) {
+    const test = line ? line + ' ' + w : w;
+    if (g.measureText(test).width > maxW && line) { g.fillText(line, x, y); line = w; y += lh; }
+    else line = test;
+  }
+  g.fillText(line, x, y); return y;
+}
+function rr(g, x, y, w, hh, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + hh, r); g.arcTo(x + w, y + hh, x, y + hh, r); g.arcTo(x, y + hh, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+
+$('#shSt').onclick = async () => {
+  try { await document.fonts.ready; } catch (e) {}
+  const c = document.createElement('canvas'); c.width = 1080; c.height = 1920;
+  const g = c.getContext('2d');
+  const gr = g.createLinearGradient(0, 0, 1080, 1920);
+  gr.addColorStop(0, '#2B0085'); gr.addColorStop(.55, '#4100BE'); gr.addColorStop(1, '#1F5BFF');
+  g.fillStyle = gr; g.fillRect(0, 0, 1080, 1920);
+  g.strokeStyle = 'rgba(255,255,255,.35)'; g.lineWidth = 4; rr(g, 40, 40, 1000, 1840, 40); g.stroke();
+  // árbol decorativo
+  const pts = [[540, 380], [330, 520], [750, 520], [220, 660], [440, 660], [860, 660]];
+  g.strokeStyle = 'rgba(255,255,255,.25)'; g.lineWidth = 7;
+  [[0, 1], [0, 2], [1, 3], [1, 4], [2, 5]].forEach(([a, b]) => { g.beginPath(); g.moveTo(...pts[a]); g.lineTo(...pts[b]); g.stroke(); });
+  pts.forEach((p, i) => { g.beginPath(); g.arc(p[0], p[1], 42, 0, Math.PI * 2); g.fillStyle = i === 0 ? '#FFC83D' : 'rgba(255,255,255,.28)'; g.fill(); });
+  g.textAlign = 'center'; g.fillStyle = '#fff';
+  g.font = '800 96px Poppins, sans-serif'; g.fillText('utel', 540, 190);
+  g.font = '600 38px Poppins, sans-serif'; g.fillText('educación continua', 540, 250);
+  g.font = '700 42px Poppins, sans-serif'; g.fillStyle = '#BFD9FF'; g.fillText('CERTIFICADO DE LOGRO', 540, 830);
+  g.fillStyle = '#fff'; g.font = '800 84px Poppins, sans-serif';
+  let y = wrapText(g, playerName, 540, 950, 920, 96);
+  g.font = '500 42px Poppins, sans-serif'; y = wrapText(g, 'completó el desafío', 540, y + 90, 920, 52);
+  g.font = '800 64px Poppins, sans-serif'; y = wrapText(g, 'Arma tu estructura territorial', 540, y + 85, 900, 76);
+  g.font = '500 38px Poppins, sans-serif'; g.fillStyle = '#DCE8FF'; y = wrapText(g, 'Árboles: BST, recorridos y balanceo AVL', 540, y + 65, 920, 48);
+  const st = [[`${firstOk}/${steps.length}`, 'aciertos'], [fmtT(elapsed), 'tiempo'], [new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'short' }), 'fecha']];
+  st.forEach((s, i) => {
+    const bx = 110 + i * 300, by = y + 70;
+    g.fillStyle = 'rgba(255,255,255,.15)'; rr(g, bx, by, 260, 170, 26); g.fill();
+    g.fillStyle = '#fff'; g.font = '800 58px Poppins, sans-serif'; g.fillText(s[0], bx + 130, by + 90);
+    g.font = '500 30px Poppins, sans-serif'; g.fillStyle = '#DCE8FF'; g.fillText(s[1], bx + 130, by + 138);
+  });
+  g.fillStyle = '#fff'; g.font = '600 36px Poppins, sans-serif';
+  g.fillText('Diplomado en Ciencia de datos', 540, 1660); g.fillText('e inteligencia artificial', 540, 1708);
+  g.font = 'italic 500 32px Poppins, sans-serif'; g.fillStyle = '#DCE8FF';
+  g.fillText('Módulo 2 · Semana 1 · Docente: Dr. Armando Maravilla', 540, 1780);
+  c.toBlob(async blob => {
+    const file = new File([blob], 'certificado_arboles_semana1.png', { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], text: shareText() }); return; } catch (e) {}
+    }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = file.name;
+    document.body.appendChild(a); a.click(); a.remove();
+    toast('📲 Imagen descargada');
+  }, 'image/png');
+};
+
+$('#btnReplay').onclick = () => {
+  $('#certOv').classList.remove('show');
+  idx = 0; solved = false; tries = 0; firstOk = 0; resetSel();
+  $('#fb').innerHTML = ''; $('#timer').textContent = '⏱ 00:00';
+  render(); startTimer();
+};
+
+resetSel();
+render();
+</script>
+</body>
+</html>
