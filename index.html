@@ -578,11 +578,21 @@ function drawViz(s) {
   if (s.vis === 'bars') { T.textContent = 'Impacto en el sistema real'; L.innerHTML = ''; drawBars(solved); }
 }
 
+function isLeafOrg(id) {
+  let found = null;
+  (function w(n) { if (found) return; if (n.id === id) { found = n; return; } n.c.forEach(w); })(ORG);
+  return !!found && found.c.length === 0;
+}
 function pickOrg(id) {
   const s = steps[idx]; if (solved) return;
+  if (s.type === 'multi') {
+    if (!isLeafOrg(id)) { sfx.bad(); toast('👆 Ese todavía tiene gente a su cargo: no es una hoja'); return; }
+    sfx.click();
+    sel.has(id) ? sel.delete(id) : sel.add(id);
+    render(); return;
+  }
   sfx.click();
-  if (s.type === 'multi') { sel.has(id) ? sel.delete(id) : sel.add(id); }
-  else sel = id;
+  sel = id;
   render();
 }
 function pickSeq(v) {
